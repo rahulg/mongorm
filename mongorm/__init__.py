@@ -2,6 +2,6 @@
 
 from database import Database
 
-VERSION = (0, 2, 0)
+VERSION = (0, 2, 1)
 
 __all__ = ['Database', 'VERSION']
