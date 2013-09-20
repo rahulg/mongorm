@@ -19,6 +19,7 @@ class BaseDocumentMeta(type):
         'ensure_index',
         'drop_index',
         'drop_indexes',
+        'index_information',
         'reindex',
         'group',
         'distinct',
@@ -41,6 +42,10 @@ class BaseDocumentMeta(type):
 
             for fn in self.INHERIT_FROM_COLLECTION:
                 setattr(self, fn, getattr(self._coll, fn))
+
+            if '__indices__' in self.__dict__:
+                for v in self.__indices__:
+                    self.ensure_index(v)
 
         except AttributeError:
             # Initial declaration, it won't have an injected _db

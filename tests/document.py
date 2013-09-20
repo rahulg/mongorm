@@ -1,6 +1,7 @@
 import unittest
 
 from mongorm import Database
+import pymongo
 
 
 class DocumentTestCase(unittest.TestCase):
@@ -78,3 +79,12 @@ class DocumentTestCase(unittest.TestCase):
         d.save()
 
         self.assertIn('_id', d)
+
+    def test_indices(self):
+        class OtherTestClass(self.db.Document):
+            __indices__ = [
+                [('test', pymongo.ASCENDING)]
+            ]
+
+        d = OtherTestClass()
+        self.assertGreater(len(d.index_information()), 1)
