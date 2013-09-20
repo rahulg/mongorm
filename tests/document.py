@@ -83,8 +83,9 @@ class DocumentTestCase(unittest.TestCase):
     def test_indices(self):
         class OtherTestClass(self.db.Document):
             __indices__ = [
+                'hello',
                 [('test', pymongo.ASCENDING)]
             ]
 
         d = OtherTestClass()
-        self.assertGreater(len(d.index_information()), 1)
+        self.assertEqual(len(d.index_information()), 3)
