@@ -89,3 +89,13 @@ class DocumentTestCase(unittest.TestCase):
 
         d = OtherTestClass()
         self.assertEqual(len(d.index_information()), 3)
+
+    def test_load_dump_objid(self):
+        d = self.SomeTestClass()
+        d.hello = 'world'
+        d.save()
+
+        e = self.SomeTestClass()
+        e.load_json(d.dump_json())
+
+        self.assertEquals(d._id, e._id)

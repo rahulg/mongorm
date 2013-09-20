@@ -7,6 +7,7 @@ from inflection import (
     camelize as camelise,
     underscore
 )
+from bson.objectid import ObjectId
 
 
 # classmethods need access to the db-related stuff
@@ -70,19 +71,26 @@ class BaseDocument(dict):
 
     def dump_json(self):
         rv = {}
-        for key in self:
-            rv[camelise(key, uppercase_first_letter=False)] = self[key]
+        for k in self:
+            if k == '_id':
+                # Handle ObjectID
+                rv[k] = str(self[k])
+            else:
+                rv[camelise(k, uppercase_first_letter=False)] = self[k]
         return json.dumps(rv, encoding='utf8')
 
     def load_json(self, s):
         d = json.loads(s, encoding='utf8')
-        for key in d:
-            self[key] = d[key]
+        for k in d:
+            new_k = underscore(k)
+            self[new_k] = d[k] if k != '_id' else ObjectId(d[k])
 
     @classmethod
     def from_json(cls, s):
         rv = cls()
         rv.load_json(s)
+        if '_id' in rv:
+            del rv['_id']
         return rv
 
     def validate(self):
