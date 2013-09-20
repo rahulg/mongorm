@@ -1,11 +1,11 @@
 mongorm
 =======
 
-mongorm is an extremely thin ORM-like layer on top of pymongo that
+``mongorm`` is an extremely thin ODM layer on top of ``pymongo`` that
 allows you to create classes that represent MongoDB documents.
 
-It's designed to give you all the flexibility of pymongo, with a few
-convenience features, such as dot-notation accesses to fields.
+It's designed to give you all the flexibility of ``pymongo``, with a few
+convenience features, such as dot-notation access to fields.
 
 Getting Started
 ===============
@@ -13,7 +13,7 @@ Getting Started
 The recommended way to install mongorm is to install via pip,
 ``pip install mongorm``
 
-mongorm only has a single class for you to import:
+``mongorm`` only has a single class for you to import:
 
 ::
 
@@ -34,9 +34,9 @@ or with a host-port-db combination:
 If any of the keyword arguments aren't matched, or if the URI is missing
 a database name, the following are used as defaults:
 
--  host: 'localhost'
--  port: 27017
--  db: 'test'
+-  ``host``: 'localhost'
+-  ``port``: 27017
+-  ``db``: 'test'
 
 Database Class
 ==============
@@ -45,7 +45,7 @@ The ``Database`` class has the following methods:
 
 -  ``drop``: drops a database
 -  ``drop_collection``: drops a collection
--  ``get_collections``: gets a list of collections in the Database
+-  ``get_collections``: gets a list of collections in the database
 
 and the following (read-only) properties:
 
@@ -70,7 +70,8 @@ With a configured Database, as above, you can declare models as:
 These models will inherit the database connection from the ``db``
 instance.
 
-The following demonstrates some of the features of the Document class.
+The following demonstrates some of the features of the ``Document``
+class.
 
 ::
 
@@ -79,14 +80,17 @@ The following demonstrates some of the features of the Document class.
         # Defaults to the underscored version of the class name
         __collection__ = 'auth_user'
 
-        # Enforce validation on certain fields. All fields in this are considered required
+        # Enforce validation on certain fields
+        # All fields in this dict are considered required
         __fields__ = {
-            # user.name is a required field of type str, and a default value of 'test'
+            # user.name is a required field of type str
+            # and has a default value of 'test'
             'name': (str, 'test'),
             'age': (int, 10)
         }
 
-        # Specify indices. These are directly passed to pymongo's collection.ensure_index
+        # Specify indices
+        # These are directly passed to pymongo's collection.ensure_index
         __indices__ = [
             # Normal index over name field
             'name',
@@ -97,19 +101,20 @@ The following demonstrates some of the features of the Document class.
         ]
 
         # Override the validate function
-        # This gets called before a save operation; error conditions should throw exceptions
+        # This gets called before a save operation
+        # Error conditions should throw exceptions
         def validate(self):
             if self.age < 18:
                 raise CannotLegallyDrinkError
 
-The ``Document`` class also has some default methods:
+The ``Document`` class also has some useful/essential methods:
 
 -  ``dump_json``: dumps ``self`` as JSON
 -  ``load_json``: updates ``self``'s fields from the input JSON
 -  ``save``: saves the document
 -  ``delete``: removes the document from the collection
 
-And the following ``@classmethod``\ s:
+and the following ``@classmethod``\ s:
 
 -  ``from_json``: returns a new instance of class constructed with the
    input JSON
@@ -130,3 +135,21 @@ In addition, the following methods are passed on to the
 -  ``distinct``
 -  ``write_concern``
 -  ``find_and_modify``
+
+Any arguments are passed verbatim to the ``pymongo.collection``
+instance, so please refer to ``pymongo``\ s documentation.
+
+Contributing
+============
+
+All development happens on
+`GitHub <https://github.com/rahulg/mongorm>`__. Feel free to report any
+issues there.
+
+If you wish to contribute code, please note the following:
+
+-  The project is BSD-licensed, and is not copyleft
+-  Please work off the ``master`` branch, and not any other published
+   branches that might exist
+-  Make sure you're following conventions
+-  Github pull requests are fine, as are patches emailed to ``r@hul.ag``
