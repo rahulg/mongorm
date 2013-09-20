@@ -9,6 +9,8 @@ from inflection import (
 )
 from bson.objectid import ObjectId
 
+from mongorm.utils import DotDict
+
 
 class Field(object):
 
@@ -67,21 +69,9 @@ class BaseDocumentMeta(type):
             pass
 
 
-class BaseDocument(dict):
+class BaseDocument(DotDict):
 
     __metaclass__ = BaseDocumentMeta
-
-    def __init__(self):
-        super(BaseDocument, self).__init__()
-
-    def __getattr__(self, key):
-        return self.__getitem__(key)
-
-    def __delattr__(self, key):
-        del self[key]
-
-    def __setattr__(self, key, value):
-        self.__setitem__(key, value)
 
     def dump_json(self):
         rv = {}
@@ -111,24 +101,43 @@ class BaseDocument(dict):
         pass
 
     @staticmethod
-    def _type_match(field, typ):
-        return type(field) == typ
+    def _typecheck(spec, dct):
+        for k in spec:
 
-    def validate_fields(self):
-        if '__fields__' in self.__class__.__dict__:
-            for k in self.__fields__:
-                req, typ, default = self.__class__.__fields__[k]
+            # Nested document
+            if type(spec[k]) == dict:
 
-                if req and k not in self:
+                new_dict = False
+                if not k in dct:
+                    # Create the nested doc
+                    dct[k] = DotDict()
+                    new_dict = True
+
+                BaseDocument._typecheck(spec[k], dct[k])
+
+                if new_dict and len(dct[k]) == 0:
+                    # All the fields were optional
+                    del dct[k]
+
+            # Simple field
+            else:
+
+                req, typ, default = spec[k]
+
+                if req and k not in dct:
                     if default is None:
                         raise KeyError
                     # Set default
-                    self[k] = default
+                    dct[k] = default
 
-                if req or ((not req) and k in self):
+                if req or ((not req) and k in dct):
                     # Ensure types match
-                    if not self.__class__._type_match(self[k], typ):
+                    if not type(dct[k]) == typ:
                         raise TypeError
+
+    def validate_fields(self):
+        if '__fields__' in self.__class__.__dict__:
+            self.__class__._typecheck(self.__class__.__fields__, self)
 
     def save(self):
         self.validate_fields()

@@ -1,6 +1,6 @@
 import unittest
 
-from mongorm import Database, Field
+from mongorm import Database, Field, DotDict
 import pymongo
 
 
@@ -43,13 +43,6 @@ class DocumentTestCase(unittest.TestCase):
         d = self.SomeTestClass.from_json(self.sample_json)
         self.assertEquals(d.dump_json(), self.sample_json)
 
-    def test_type_match(self):
-        tm = self.SomeTestClass._type_match
-        self.assertTrue(tm('a', str))
-        self.assertTrue(tm(1, int))
-        self.assertFalse(tm('a', int))
-        self.assertFalse(tm(1, str))
-
     def test_missing_required_field(self):
         self.SomeTestClass.__fields__ = {
             'hello': Field.required(str, None)
@@ -89,6 +82,49 @@ class DocumentTestCase(unittest.TestCase):
         d.save()
 
         self.assertEqual(d.hello, 'world')
+
+    def test_validate_fields_nested(self):
+        self.SomeTestClass.__fields__ = {
+            'hello': {
+                'a': Field.required(str),
+                'b': Field.required(int, 2),
+                'c': Field.optional(int)
+            }
+        }
+
+        d = self.SomeTestClass()
+        d.hello = DotDict({'a': 's'})
+        d.validate_fields()
+
+        self.assertEquals(d.hello.b, 2)
+
+    def test_validate_fields_nested_optional(self):
+        self.SomeTestClass.__fields__ = {
+            'hello': {
+                'c': Field.optional(int)
+            }
+        }
+
+        d = self.SomeTestClass()
+        d.validate_fields()
+
+        self.assertNotIn('hello', d)
+
+    def test_validate_fields_yo_dawg(self):
+        self.SomeTestClass.__fields__ = {
+            'hello': {
+                'a': {
+                    'b': {
+                        'c': Field.required(int, 42)
+                    }
+                }
+            }
+        }
+
+        d = self.SomeTestClass()
+        d.validate_fields()
+
+        self.assertEquals(d.hello.a.b.c, 42)
 
     def test_save(self):
         d = self.SomeTestClass()

@@ -5,7 +5,8 @@ mongorm
 allows you to create classes that represent MongoDB documents.
 
 It's designed to give you all the flexibility of ``pymongo``, with a few
-convenience features, such as dot-notation access to fields.
+convenience features, such as attribute-style (user.name) access to
+fields.
 
 Getting Started
 ===============
@@ -57,6 +58,26 @@ You can access the pymongo ``MongoClient`` with ``db._client`` and the
 ``pymongo.database`` instance with ``db._db``. Eventually, common
 operations will be accessible from the ``db`` object itself.
 
+DotDict
+=======
+
+The ``DotDict`` class is a wrapper around python's default dict that
+allows attribute-style access to dict key-value pairs. In other words,
+the following accesses are the same:
+
+::
+
+    >>> d = DotDict({'hello': 'world'})
+    >>> print d['hello']
+    world
+    >>> print d.hello
+    world
+
+``mongorm.Document``\ s inherit from it to gain this feature. If you'd
+like to be able to refer to your nested documents with an
+attribute-style access, declare them as ``mongorm.DotDict``\ s instead
+of {}s.
+
 Defining Models
 ===============
 
@@ -87,13 +108,19 @@ class.
         __fields__ = {
 
             # user.username is a required field of type str, without a default
-            'username': Field.required(str, None),
+            'username': Field.required(str),
 
             # user.age is a required field, with a default value
             'age': Field.required(int, 12)
 
             # user.name is an optional field
             'name': Field.optional(str),
+
+            # Nested document
+            'nested': {
+                'key_a': Field.required(str),
+                'key_b': Field.optional(int)
+            }
 
         }
 
