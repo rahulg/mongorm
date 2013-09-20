@@ -4,6 +4,7 @@ from mongorm.document import BaseDocument
 
 
 class Database(object):
+
     '''
     Represent a MongoDB database, backed by pymongo's MongoClient
     '''

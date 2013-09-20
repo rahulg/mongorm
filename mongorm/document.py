@@ -10,9 +10,23 @@ from inflection import (
 from bson.objectid import ObjectId
 
 
-# classmethods need access to the db-related stuff
-# Nothing a little metaprogramming can't handle.
+class Field(object):
+
+    @staticmethod
+    def required(typ, default=None):
+        return (True, typ, default)
+
+    @staticmethod
+    def optional(typ):
+        return (False, typ, None)
+
+
 class BaseDocumentMeta(type):
+
+    '''
+    classmethods need access to the db-related stuff
+    Nothing a little metaprogramming can't handle.
+    '''
 
     INHERIT_FROM_COLLECTION = [
         'count',
@@ -103,15 +117,18 @@ class BaseDocument(dict):
     def validate_fields(self):
         if '__fields__' in self.__class__.__dict__:
             for k in self.__fields__:
-                typ, default = self.__class__.__fields__[k]
+                req, typ, default = self.__class__.__fields__[k]
 
-                # Set default field
-                if k not in self:
+                if req and k not in self:
+                    if default is None:
+                        raise KeyError
+                    # Set default
                     self[k] = default
 
-                # Ensure types match
-                if not self.__class__._type_match(self[k], typ):
-                    raise TypeError
+                if req or ((not req) and k in self):
+                    # Ensure types match
+                    if not self.__class__._type_match(self[k], typ):
+                        raise TypeError
 
     def save(self):
         self.validate_fields()

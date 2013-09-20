@@ -1,6 +1,6 @@
 import unittest
 
-from mongorm import Database
+from mongorm import Database, Field
 import pymongo
 
 
@@ -50,9 +50,26 @@ class DocumentTestCase(unittest.TestCase):
         self.assertFalse(tm('a', int))
         self.assertFalse(tm(1, str))
 
+    def test_missing_required_field(self):
+        self.SomeTestClass.__fields__ = {
+            'hello': Field.required(str, None)
+        }
+
+        d = self.SomeTestClass()
+        self.assertRaises(KeyError, d.save)
+
+    def test_missing_optional_field(self):
+        self.SomeTestClass.__fields__ = {
+            'hello': Field.optional(str)
+        }
+
+        d = self.SomeTestClass()
+        d.save()
+        self.assertIn('_id', d)
+
     def test_validate_fields_type(self):
         self.SomeTestClass.__fields__ = {
-            'hello': (str, 'world')
+            'hello': Field.optional(str)
         }
 
         d = self.SomeTestClass()
@@ -65,7 +82,7 @@ class DocumentTestCase(unittest.TestCase):
 
     def test_validate_fields_default(self):
         self.SomeTestClass.__fields__ = {
-            'hello': (str, 'world')
+            'hello': Field.required(str, 'world')
         }
 
         d = self.SomeTestClass()

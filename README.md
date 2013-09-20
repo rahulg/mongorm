@@ -62,6 +62,8 @@ These models will inherit the database connection from the `db` instance.
 The following demonstrates some of the features of the `Document` class.
 
 ```
+from mongorm import Field
+
 class User(db.Model):
 	# Override the collection name
 	# Defaults to the underscored version of the class name
@@ -70,21 +72,31 @@ class User(db.Model):
 	# Enforce validation on certain fields
 	# All fields in this dict are considered required
 	__fields__ = {
-		# user.name is a required field of type str
-		# and has a default value of 'test'
-		'name': (str, 'test'),
-		'age': (int, 10)
+
+		# user.username is a required field of type str, without a default
+		'username': Field.required(str, None),
+
+		# user.age is a required field, with a default value
+		'age': Field.required(int, 12)
+
+		# user.name is an optional field
+		'name': Field.optional(str),
+
 	}
 
 	# Specify indices
 	# These are directly passed to pymongo's collection.ensure_index
 	__indices__ = [
+
 		# Normal index over name field
 		'name',
+
 		# Descending index over age
 		[('age': pymongo.DESCENDING)],
+
 		# Compound index
 		[('age', pymongo.DESCENDING), ('name', pymongo.ASCENDING)]
+
 	]
 
 	# Override the validate function
