@@ -27,6 +27,9 @@ class Database(object):
             self._db = self._client[kwargs.get('db', 'test')]
         self.Document = type('Document', (BaseDocument,), {'_db': self._db})
 
+    def authenticate(self, *args, **kwargs):
+        self._client.authenticate(*args, **kwargs)
+
     def drop(self):
         self._client.drop_database(self._db.name)
 
