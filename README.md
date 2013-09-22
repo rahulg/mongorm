@@ -36,6 +36,7 @@ If any of the keyword arguments aren't matched, or if the URI is missing a datab
 
 The `Database` class has the following methods:
 
+* `authenticate`: Works the same as pymongo's
 * `drop`: drops a database
 * `drop_collection`: drops a collection
 * `get_collections`: gets a list of collections in the database
@@ -46,7 +47,7 @@ and the following (read-only) properties:
 * `port`: MongoDB port
 * `name`: database name
 
-You can access the pymongo `MongoClient` with `db._client` and the `pymongo.database` instance with `db._db`. Eventually, common operations will be accessible from the `db` object itself.
+You can access the pymongo `MongoClient` with `db.__client__` and the `pymongo.database` instance with `db.__db__`. Eventually, common operations will be accessible from the `db` object itself.
 
 # DotDict
 

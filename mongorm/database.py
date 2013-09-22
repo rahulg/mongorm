@@ -1,6 +1,6 @@
 from pymongo import MongoClient
 
-from mongorm.document import BaseDocument
+from mongorm.document import Document
 
 
 class Database(object):
@@ -14,44 +14,44 @@ class Database(object):
         Initialise
         '''
         if 'uri' in kwargs:
-            self._client = MongoClient(kwargs['uri'])
+            self.__client__ = MongoClient(kwargs['uri'])
             if 'db' in kwargs:
-                self._db = self._client[kwargs['db']]
+                self.__db__ = self.__client__[kwargs['db']]
             else:
-                self._db = self._client.get_default_database()
+                self.__db__ = self.__client__.get_default_database()
         else:
-            self._client = MongoClient(
+            self.__client__ = MongoClient(
                 kwargs.get('host', 'localhost'),
                 kwargs.get('port', 27017)
             )
-            self._db = self._client[kwargs.get('db', 'test')]
-        self.Document = type('Document', (BaseDocument,), {'_db': self._db})
+            self.__db__ = self.__client__[kwargs.get('db', 'test')]
+        self.Document = type('Document', (Document,), {'__db__': self.__db__})
 
     def authenticate(self, *args, **kwargs):
-        self._client.authenticate(*args, **kwargs)
+        self.__client__.authenticate(*args, **kwargs)
 
     def drop(self):
-        self._client.drop_database(self._db.name)
+        self.__client__.drop_database(self.__db__.name)
 
     def drop_collection(self, collection):
         if isinstance(collection, str):
-            self._db.drop_collection(collection)
-        elif issubclass(collection, BaseDocument):
-            self._db.drop_collection(collection.__collection__)
+            self.__db__.drop_collection(collection)
+        elif issubclass(collection, Document):
+            self.__db__.drop_collection(collection.__collection__)
         else:
             raise TypeError
 
     def get_collections(self, include_system_collections=False):
-        return self._db.collection_names(include_system_collections)
+        return self.__db__.collection_names(include_system_collections)
 
     @property
     def host(self):
-        return self._client.host
+        return self.__client__.host
 
     @property
     def port(self):
-        return self._client.port
+        return self.__client__.port
 
     @property
     def name(self):
-        return self._db.name
+        return self.__db__.name

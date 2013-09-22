@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from database import Database
-from document import Field
-from utils import DotDict
+from mongorm.database import Database
+from mongorm.document import Field
+from mongorm.utils import DotDict
 
 VERSION = (0, 3, 1)
 

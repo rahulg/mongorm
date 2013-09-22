@@ -44,34 +44,33 @@ class BaseDocumentMeta(type):
         'find_and_modify'
     ]
 
-    def __new__(cls, clsname, bases, dct):
-        # Use a default collection name derived from class name
-        # Children can override it by setting __collection__
-        if '__collection__' not in dct:
-            dct['__collection__'] = underscore(clsname)
-        return super(BaseDocumentMeta, cls).__new__(cls, clsname, bases, dct)
-
     def __init__(self, clsname, bases, dct):
         super(BaseDocumentMeta, self).__init__(clsname, bases, dct)
+        if '__collection__' not in dct:
+            self.__collection__ = underscore(clsname)
         # Set the collection object if we need to
         try:
-            self._coll = self._db[self.__collection__]
+            self.__coll__ = self.__db__[self.__collection__]
 
             for fn in self.INHERIT_FROM_COLLECTION:
-                setattr(self, fn, getattr(self._coll, fn))
-
+                setattr(self, fn, getattr(self.__coll__, fn))
             if '__indices__' in self.__dict__:
                 for v in self.__indices__:
                     self.ensure_index(v)
 
         except AttributeError:
-            # Initial declaration, it won't have an injected _db
+            # Initial declaration, it won't have an injected __db__
             pass
 
 
-class BaseDocument(DotDict):
+# This is the only metaclass definition that works with both python3 and python2
+BaseDocument = BaseDocumentMeta('BaseDocument', (DotDict, ), {})
 
-    __metaclass__ = BaseDocumentMeta
+
+class Document(BaseDocument):
+
+    def __init__(self):
+        super(Document, self).__init__()
 
     def dump_json(self):
         rv = {}
@@ -113,7 +112,7 @@ class BaseDocument(DotDict):
                     dct[k] = DotDict()
                     new_dict = True
 
-                BaseDocument._typecheck(spec[k], dct[k])
+                Document._typecheck(spec[k], dct[k])
 
                 if new_dict and len(dct[k]) == 0:
                     # All the fields were optional
@@ -142,15 +141,15 @@ class BaseDocument(DotDict):
     def save(self):
         self.validate_fields()
         self.validate()
-        self._id = self._coll.save(self)
+        self._id = self.__coll__.save(self)
 
     def delete(self):
-        self._coll.remove(self._id)
+        self.__coll__.remove(self._id)
 
     @classmethod
     def find(cls, *args, **kwargs):
-        return cls._coll.find(*args, as_class=cls, **kwargs)
+        return cls.__coll__.find(*args, as_class=cls, **kwargs)
 
     @classmethod
     def find_one(cls, *args, **kwargs):
-        return cls._coll.find_one(*args, as_class=cls, **kwargs)
+        return cls.__coll__.find_one(*args, as_class=cls, **kwargs)
