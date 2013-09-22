@@ -152,3 +152,12 @@ class DocumentTestCase(unittest.TestCase):
         e.load_json(d.dump_json())
 
         self.assertEquals(d._id, e._id)
+
+    def test_field_pollution(self):
+        d = self.SomeTestClass()
+        d.hello = 'world'
+        d.save()
+
+        expected_keys = ['_id', 'hello']
+
+        self.assertListEqual(d.keys(), expected_keys)
