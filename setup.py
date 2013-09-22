@@ -21,7 +21,7 @@ if __name__ == '__main__':
         description=('An extremely thin ORM-ish wrapper over pymongo.'),
         long_description=read('README.rst'),
         license = 'BSD',
-        keywords = 'mongodb orm',
+        keywords = ['mongodb', 'mongo', 'orm', 'odm'],
         url = 'https://github.com/rahulg/mongorm',
         packages=['mongorm', 'tests'],
         classifiers=[
