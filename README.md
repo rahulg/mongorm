@@ -103,6 +103,15 @@ class User(db.Model):
 			'key_b': Field.optional(int)
 		}
 
+		# List. Note that list elements are ALWAYS treated as optional
+		'a_list': [ Field.optional(int) ]
+
+		# List of objects
+		'b_list' = [ {
+			'key_a': Field.required(str),
+			'key_b': Field.optional(int)
+		} ]
+
 	}
 
 	# Specify indices

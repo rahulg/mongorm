@@ -106,38 +106,67 @@ class Document(BaseDocument):
     @staticmethod
     def _typecheck(spec, dct):
 
-        for k in spec:
+        if type(spec) == list:
 
-            # Nested document
-            if type(spec[k]) == dict:
+            lspec = spec[0]
+            for i in dct:
+                Document._typecheck(lspec, i)
 
-                new_dict = False
-                if not k in dct:
-                    # Create the nested doc
-                    dct[k] = DotDict()
-                    new_dict = True
+        elif type(spec) == tuple:
 
-                Document._typecheck(spec[k], dct[k])
+            req, typ, default = spec
 
-                if new_dict and len(dct[k]) == 0:
-                    # All the fields were optional
-                    del dct[k]
+            if not type(dct) == typ:
+                raise TypeError
 
-            # Simple field
-            else:
+        elif type(spec) == dict:
 
-                req, typ, default = spec[k]
+            for k in spec:
 
-                if req and k not in dct:
-                    if default is None:
-                        raise KeyError
-                    # Set default
-                    dct[k] = default
+                # Nested document
+                if type(spec[k]) == dict:
 
-                if req or ((not req) and k in dct):
-                    # Ensure types match
-                    if not type(dct[k]) == typ:
-                        raise TypeError
+                    new_dict = False
+                    if k not in dct:
+                        # Create the nested doc
+                        dct[k] = DotDict()
+                        new_dict = True
+
+                    Document._typecheck(spec[k], dct[k])
+
+                    if new_dict and len(dct[k]) == 0:
+                        # All the fields were optional
+                        del dct[k]
+
+                # List
+                elif type(spec[k]) == list:
+
+                    new_list = False
+                    if k not in dct:
+                        # Create the list
+                        dct[k] = []
+                        new_list = True
+
+                    Document._typecheck(spec[k], dct[k])
+
+                    if new_list and len(dct[k]) == 0:
+                        del dct[k]
+
+                # Simple field
+                else:
+
+                    req, typ, default = spec[k]
+
+                    if req and k not in dct:
+                        if default is None:
+                            raise KeyError
+                        # Set default
+                        dct[k] = default
+
+                    if req or ((not req) and k in dct):
+                        # Ensure types match
+                        if not type(dct[k]) == typ:
+                            raise TypeError
 
     def validate_fields_extra(self, spec):
         self.__class__._typecheck(spec, self)

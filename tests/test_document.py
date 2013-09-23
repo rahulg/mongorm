@@ -126,6 +126,56 @@ class DocumentTestCase(unittest.TestCase):
 
         self.assertEquals(d.hello.a.b.c, 42)
 
+    def test_validate_fields_list(self):
+        self.SomeTestClass.__fields__ = {
+            'hello': [
+                {
+                    'a': Field.required(int, 42)
+                }
+            ]
+        }
+
+        d = self.SomeTestClass()
+        d.hello = [DotDict({'x': 42})]
+        d.validate_fields()
+
+        self.assertEquals(d.hello[0].a, 42)
+
+    def test_validate_fields_list_plain(self):
+        self.SomeTestClass.__fields__ = {
+            'hello': [Field.optional(int)]
+        }
+
+        d = self.SomeTestClass()
+        d.hello = [42, 42]
+        d.validate_fields()
+
+        self.assertListEqual(d.hello, [42, 42])
+
+    def test_validate_fields_list_plain_fail(self):
+        self.SomeTestClass.__fields__ = {
+            'hello': [Field.optional(int)]
+        }
+
+        d = self.SomeTestClass()
+        d.hello = ['42', '42']
+        self.assertRaises(TypeError, d.validate_fields)
+
+    def test_validate_fields_list_empty(self):
+        self.SomeTestClass.__fields__ = {
+            'hello': [
+                {
+                    'a': Field.required(int, 42)
+                }
+            ]
+        }
+
+        d = self.SomeTestClass()
+        d.hello = []
+        d.validate_fields()
+
+        self.assertEquals(len(d.hello), 0)
+
     def test_save(self):
         d = self.SomeTestClass()
         d.hello = 'world'
