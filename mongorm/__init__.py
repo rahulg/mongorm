@@ -6,4 +6,8 @@ from mongorm.utils import DotDict
 
 VERSION = (0, 4, 1)
 
-__all__ = ['VERSION', 'Database', 'Field', 'DotDict']
+
+class ValidationError(Exception):
+    pass
+
+__all__ = ['VERSION', 'Database', 'Field', 'DotDict', 'ValidationError']

@@ -1,13 +1,9 @@
-try:
-    import simplejson as json
-except ImportError:
-    import json
-
+from bson.objectid import ObjectId
 from inflection import (
     camelize as camelise,
     underscore
 )
-from bson.objectid import ObjectId
+import simplejson as json
 
 from mongorm.utils import DotDict
 
@@ -63,30 +59,37 @@ class BaseDocumentMeta(type):
             pass
 
 
-# This is the only metaclass definition that works with both python3 and python2
+# This is the only metaclass definition that works with both python3 and
+# python2
 BaseDocument = BaseDocumentMeta('BaseDocument', (DotDict, ), {})
 
 
 class Document(BaseDocument):
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         super(Document, self).__init__()
+        d = dict(*args, **kwargs)
+        self.load_dict(d)
+
+    def dump_dict(self):
+        rv = {}
+        for k, v in self.iteritems():
+            new_k = camelise(k, uppercase_first_letter=False)
+            rv[new_k] = v if type(v) != ObjectId else str(v)
+        return rv
 
     def dump_json(self):
-        rv = {}
-        for k in self:
-            if k == '_id':
-                # Handle ObjectID
-                rv[k] = str(self[k])
-            else:
-                rv[camelise(k, uppercase_first_letter=False)] = self[k]
+        rv = self.dump_dict()
         return json.dumps(rv, encoding='utf8')
+
+    def load_dict(self, d):
+        for k, v in d.iteritems():
+            new_k = underscore(k)
+            self[new_k] = v if k != '_id' else ObjectId(v)
 
     def load_json(self, s):
         d = json.loads(s, encoding='utf8')
-        for k in d:
-            new_k = underscore(k)
-            self[new_k] = d[k] if k != '_id' else ObjectId(d[k])
+        self.load_dict(d)
 
     @classmethod
     def from_json(cls, s):
@@ -101,6 +104,7 @@ class Document(BaseDocument):
 
     @staticmethod
     def _typecheck(spec, dct):
+
         for k in spec:
 
             # Nested document
@@ -133,6 +137,9 @@ class Document(BaseDocument):
                     # Ensure types match
                     if not type(dct[k]) == typ:
                         raise TypeError
+
+    def validate_fields_extra(self, spec):
+        self.__class__._typecheck(spec, self)
 
     def validate_fields(self):
         if '__fields__' in self.__class__.__dict__:

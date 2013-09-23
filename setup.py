@@ -34,6 +34,7 @@ if __name__ == '__main__':
         test_suite='tests',
         install_requires=[
             'pymongo',
-            'inflection'
+            'inflection',
+            'simplejson'
         ],
     )

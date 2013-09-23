@@ -149,10 +149,18 @@ class.
 
 The ``Document`` class also has some useful/essential methods:
 
--  ``dump_json``: dumps ``self`` as JSON
--  ``load_json``: updates ``self``'s fields from the input JSON
+-  ``dump_dict``: returns a dict with keys that have camelCased names
+-  ``dump_json``: dumps the above dict as JSON
+-  ``load_dict``: updates ``self`` from a dict; it converts all keys to
+   underscored\_names
+-  ``load_json``: unmarshals JSON into a dict & performs the above
+   operation
 -  ``save``: saves the document
 -  ``delete``: removes the document from the collection
+-  ``validate_fields_extra``: validates your fields based on the dict
+   passed in. The dict uses the same format as **fields** above. This
+   method can be used to make certain fields required only in specific
+   situations.
 
 and the following ``@classmethod``\ s:
 
