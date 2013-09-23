@@ -210,4 +210,4 @@ class DocumentTestCase(unittest.TestCase):
 
         expected_keys = ['_id', 'hello']
 
-        self.assertListEqual(d.keys(), expected_keys)
+        self.assertListEqual(list(d.keys()), expected_keys)

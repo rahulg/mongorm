@@ -2,6 +2,10 @@ class DotDict(dict):
 
     def __init__(self, *args, **kwargs):
         super(DotDict, self).__init__(*args, **kwargs)
+        try:
+            dict.__getattribute__(self, 'iteritems')
+        except AttributeError:
+            dict.__setattr__(self, 'iteritems', dict.__getattribute__(self, 'items'))
 
     def __getattr__(self, name):
         if name[:2] == '__':

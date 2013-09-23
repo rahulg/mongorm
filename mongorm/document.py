@@ -84,6 +84,7 @@ class Document(BaseDocument):
         return json.dumps(rv, encoding='utf8')
 
     def load_dict(self, d):
+        d = DotDict(d)
         for k, v in d.iteritems():
             new_k = underscore(k)
             self[new_k] = v if k != '_id' else ObjectId(v)
