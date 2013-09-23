@@ -27,6 +27,7 @@ class BaseDocumentMeta(type):
     '''
 
     INHERIT_FROM_COLLECTION = [
+        'aggregate',
         'count',
         'create_index',
         'ensure_index',

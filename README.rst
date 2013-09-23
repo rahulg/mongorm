@@ -172,6 +172,7 @@ and the following ``@classmethod``\ s:
 In addition, the following methods are passed on to the
 ``pymongo.collection`` instance:
 
+-  ``aggregate``
 -  ``count``
 -  ``create_index``
 -  ``ensure_index``
