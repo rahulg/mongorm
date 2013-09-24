@@ -167,6 +167,10 @@ class Document(BaseDocument):
                     dct = default
 
             if req or dct is not None:
+
+                if typ is ObjectId and type(dct) is str:
+                    return ObjectId(dct)
+
                 if not type(dct) is typ:
                     raise TypeError
 
