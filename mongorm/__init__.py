@@ -4,7 +4,7 @@ from mongorm.database import Database
 from mongorm.document import Field, Index
 from mongorm.utils import DotDict
 
-VERSION = (0, 5, 1)
+VERSION = (0, 6, 0)
 
 
 class ValidationError(Exception):
