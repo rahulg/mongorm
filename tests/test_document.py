@@ -1,6 +1,6 @@
 import unittest
 
-from mongorm import Database, Field, DotDict
+from mongorm import Database, Field, Index, DotDict
 import pymongo
 
 
@@ -186,8 +186,8 @@ class DocumentTestCase(unittest.TestCase):
     def test_indices(self):
         class OtherTestClass(self.db.Document):
             __indices__ = [
-                'hello',
-                [('test', pymongo.ASCENDING)]
+                Index('hello'),
+                Index([('test', pymongo.ASCENDING)]),
             ]
 
         d = OtherTestClass()

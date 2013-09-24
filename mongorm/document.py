@@ -19,6 +19,10 @@ class Field(object):
         return (False, typ, None)
 
 
+def Index(*args, **kwargs):
+    return args, kwargs
+
+
 class BaseDocumentMeta(type):
 
     '''
@@ -53,7 +57,8 @@ class BaseDocumentMeta(type):
                 setattr(self, fn, getattr(self.__coll__, fn))
             if '__indices__' in self.__dict__:
                 for v in self.__indices__:
-                    self.ensure_index(v)
+                    varg, vkwarg = v
+                    self.ensure_index(*varg, **vkwarg)
 
         except AttributeError:
             # Initial declaration, it won't have an injected __db__

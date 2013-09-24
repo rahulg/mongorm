@@ -119,13 +119,13 @@ class User(db.Model):
 	__indices__ = [
 
 		# Normal index over name field
-		'name',
+		Index('name'),
 
 		# Descending index over age
-		[('age': pymongo.DESCENDING)],
+		Index([('age': pymongo.DESCENDING)]),
 
 		# Compound index
-		[('age', pymongo.DESCENDING), ('name', pymongo.ASCENDING)]
+		Index([('age', pymongo.DESCENDING), ('name', pymongo.ASCENDING)]),
 
 	]
 
