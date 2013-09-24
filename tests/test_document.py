@@ -7,6 +7,8 @@ import pymongo
 class DocumentTestCase(unittest.TestCase):
 
     sample_json = r'{"hello": "world"}'
+    sample_dict_cc = {'helloWorld': 'hi there'}
+    sample_dict_un = {'hello_world': 'hi there'}
 
     @classmethod
     def setUpClass(cls):
@@ -25,11 +27,23 @@ class DocumentTestCase(unittest.TestCase):
     def tearDown(self):
         self.db.drop_collection(self.SomeTestClass)
 
+    def test_load_dict(self):
+        d = self.SomeTestClass()
+        d.load_dict(self.sample_dict_cc)
+
+        self.assertEqual(d, self.sample_dict_un)
+
+    def test_dump_dict(self):
+        d = self.SomeTestClass()
+        d.load_dict(self.sample_dict_cc)
+
+        test_dict = d.dump_dict()
+        self.assertEquals(test_dict, self.sample_dict_cc)
+
     def test_load_json(self):
         d = self.SomeTestClass()
         d.load_json(self.sample_json)
 
-        self.assertIn('hello', d)
         self.assertEqual(d.hello, 'world')
 
     def test_dump_json(self):
@@ -210,4 +224,4 @@ class DocumentTestCase(unittest.TestCase):
 
         expected_keys = ['_id', 'hello']
 
-        self.assertListEqual(list(d.keys()), expected_keys)
+        self.assertSetEqual(set(d.keys()), set(expected_keys))

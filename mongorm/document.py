@@ -77,11 +77,28 @@ class Document(BaseDocument):
         d = dict(*args, **kwargs)
         self.load_dict(d)
 
+    @staticmethod
+    def __dict_key_process(dct, f, *fargs, **fkwargs):
+        if type(dct) is dict:
+            for k in dct.keys():
+                _k = f(k, *fargs, **fkwargs)
+                dct[_k] = Document.__dict_key_process(
+                    dct[k], f, *fargs, **fkwargs)
+                if _k != k:
+                    del dct[k]
+            return dct
+        elif type(dct) is list:
+            for i, v in enumerate(dct):
+                dct[i] = Document.__dict_key_process(
+                    dct[k], f, *fargs, **fkwargs)
+            return dct
+        else:
+            return dct if type(dct) is not ObjectId else str(dct)
+
     def dump_dict(self):
         rv = {}
-        for k, v in self.iteritems():
-            new_k = camelise(k, uppercase_first_letter=False)
-            rv[new_k] = v if type(v) != ObjectId else str(v)
+        rv.update(self)
+        Document.__dict_key_process(rv, camelise, uppercase_first_letter=False)
         return rv
 
     def dump_json(self):
@@ -89,10 +106,12 @@ class Document(BaseDocument):
         return json.dumps(rv, encoding='utf8')
 
     def load_dict(self, d):
-        d = DotDict(d)
-        for k, v in d.iteritems():
-            new_k = underscore(k)
-            self[new_k] = v if k != '_id' else ObjectId(v)
+        _d = {}
+        _d.update(d)
+        _d = Document.__dict_key_process(_d, underscore)
+        self.update(_d)
+        if '_id' in self:
+            self._id = ObjectId(self._id)
 
     def load_json(self, s):
         d = json.loads(s, encoding='utf8')
@@ -110,76 +129,55 @@ class Document(BaseDocument):
         pass
 
     @staticmethod
-    def _typecheck(spec, dct):
+    def __field_verify(spec, dct):
 
-        if type(spec) == list:
+        if type(spec) is dict:
 
-            lspec = spec[0]
-            for i in dct:
-                Document._typecheck(lspec, i)
+            if dct is None:
+                return None
 
-        elif type(spec) == tuple:
+            for k, v in DotDict(spec).iteritems():
+                dct[k] = Document.__field_verify(
+                    v, dct.get(k, DotDict() if type(v) is dict else None))
+                if dct[k] is None or dct[k] == {}:
+                    del dct[k]
+
+            return dct
+
+        elif type(spec) is list:
+
+            if dct is None:
+                return None
+
+            list_spec = spec[0]
+
+            for i, v in enumerate(dct):
+                dct[i] = Document.__field_verify(list_spec, v)
+
+            return dct
+
+        elif type(spec) is tuple:
 
             req, typ, default = spec
 
-            if not type(dct) == typ:
-                raise TypeError
-
-        elif type(spec) == dict:
-
-            for k in spec:
-
-                # Nested document
-                if type(spec[k]) == dict:
-
-                    new_dict = False
-                    if k not in dct:
-                        # Create the nested doc
-                        dct[k] = DotDict()
-                        new_dict = True
-
-                    Document._typecheck(spec[k], dct[k])
-
-                    if new_dict and len(dct[k]) == 0:
-                        # All the fields were optional
-                        del dct[k]
-
-                # List
-                elif type(spec[k]) == list:
-
-                    new_list = False
-                    if k not in dct:
-                        # Create the list
-                        dct[k] = []
-                        new_list = True
-
-                    Document._typecheck(spec[k], dct[k])
-
-                    if new_list and len(dct[k]) == 0:
-                        del dct[k]
-
-                # Simple field
+            if req and dct is None:
+                if default is None:
+                    raise KeyError
                 else:
+                    dct = default
 
-                    req, typ, default = spec[k]
+            if req or dct is not None:
+                if not type(dct) is typ:
+                    raise TypeError
 
-                    if req and k not in dct:
-                        if default is None:
-                            raise KeyError
-                        # Set default
-                        dct[k] = default
-
-                    if req or ((not req) and k in dct):
-                        # Ensure types match
-                        if not type(dct[k]) == typ:
-                            raise TypeError
+            return dct
 
     def validate_fields_extra(self, spec):
-        self.__class__._typecheck(spec, self)
+        self.__class__.__field_verify(spec, self)
 
     def validate_fields(self):
         if '__fields__' in self.__class__.__dict__:
-            self.__class__._typecheck(self.__class__.__fields__, self)
+            self.__class__.__field_verify(self.__class__.__fields__, self)
 
     def save(self):
         self.validate_fields()
