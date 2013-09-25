@@ -129,15 +129,12 @@ class Document(BaseDocument):
         pass
 
     @staticmethod
-    def __field_verify(spec, dct, top_level=False):
+    def __field_verify(spec, dct):
 
         if type(spec) is dict:
 
             if dct is None:
-                if not top_level:
-                    return None
-                else:
-                    return DotDict()
+                return DotDict()
 
             for k, v in DotDict(spec).iteritems():
                 dct[k] = Document.__field_verify(
@@ -150,10 +147,7 @@ class Document(BaseDocument):
         elif type(spec) is list:
 
             if dct is None:
-                if not top_level:
-                    return None
-                else:
-                    return []
+                return []
 
             list_spec = spec[0]
 
@@ -183,12 +177,12 @@ class Document(BaseDocument):
             return dct
 
     def validate_fields_extra(self, spec):
-        self.__class__.__field_verify(spec, self, top_level=True)
+        self.__class__.__field_verify(spec, self)
 
     def validate_fields(self):
         if '__fields__' in self.__class__.__dict__:
             self.__class__.__field_verify(
-                self.__class__.__fields__, self, top_level=True)
+                self.__class__.__fields__, self)
 
     def save(self):
         self.validate_fields()

@@ -81,11 +81,9 @@ class DocumentTestCase(unittest.TestCase):
 
         d = self.SomeTestClass()
         d.hello = 3
+        d.validate_fields()
 
-        self.assertRaises(TypeError, d.save)
-
-        d.hello = 'world'
-        d.save()
+        self.assertEqual(d.hello, '3')
 
     def test_validate_fields_default(self):
         self.SomeTestClass.__fields__ = {
@@ -173,7 +171,8 @@ class DocumentTestCase(unittest.TestCase):
 
         d = self.SomeTestClass()
         d.hello = ['42', '42']
-        self.assertRaises(TypeError, d.validate_fields)
+        d.validate_fields()
+        self.assertListEqual(d.hello, [42, 42])
 
     def test_validate_fields_list_empty(self):
         self.SomeTestClass.__fields__ = {
