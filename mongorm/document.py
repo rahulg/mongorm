@@ -90,7 +90,7 @@ class Document(BaseDocument):
         elif type(dct) is list:
             for i, v in enumerate(dct):
                 dct[i] = Document.__dict_key_process(
-                    dct[k], f, *fargs, **fkwargs)
+                    dct[i], f, *fargs, **fkwargs)
             return dct
         else:
             return dct if type(dct) is not ObjectId else str(dct)
