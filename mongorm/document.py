@@ -171,7 +171,7 @@ class Document(BaseDocument):
                 if typ is ObjectId and type(dct) is str:
                     dct = ObjectId(dct)
 
-                if not type(dct) is typ:
+                if not issubclass(type(dct), typ):
                     raise TypeError
 
             return dct
