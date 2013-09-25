@@ -3,9 +3,9 @@ from inflection import (
     camelize as camelise,
     underscore
 )
-import simplejson as json
+import json
 
-from mongorm.utils import DotDict
+from mongorm.utils import DotDict, JSONEncoder
 
 
 class Field(object):
@@ -103,7 +103,7 @@ class Document(BaseDocument):
 
     def dump_json(self):
         rv = self.dump_dict()
-        return json.dumps(rv, encoding='utf8')
+        return JSONEncoder().encode(rv)
 
     def load_dict(self, d):
         _d = {}
@@ -114,7 +114,7 @@ class Document(BaseDocument):
             self._id = ObjectId(self._id)
 
     def load_json(self, s):
-        d = json.loads(s, encoding='utf8')
+        d = json.loads(s)
         self.load_dict(d)
 
     @classmethod
