@@ -1,3 +1,7 @@
+import simplejson
+from bson import ObjectId
+
+
 class DotDict(dict):
 
     def __init__(self, *args, **kwargs):
@@ -28,3 +32,11 @@ class DotDict(dict):
             object.__setattr__(self, name, value)
         else:
             self.__setitem__(name, value)
+
+
+class JSONEncoder(simplejson.JSONEncoder):
+
+    def default(self, o):
+        if isinstance(o, ObjectId):
+            return str(o)
+        return simplejson.JSONEncoder.default(self, o)
