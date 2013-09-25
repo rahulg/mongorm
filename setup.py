@@ -4,7 +4,7 @@
 import os
 from setuptools import setup
 
-from mongorm import VERSION
+VERSION = (0, 6, 5)
 
 
 def read(fname):
