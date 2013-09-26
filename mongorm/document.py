@@ -168,7 +168,7 @@ class Document(BaseDocument):
 
             if dct is not None:
 
-                if typ is ObjectId and type(dct) is str:
+                if typ is ObjectId and issubclass(type(dct), basestring):
                     dct = ObjectId(dct)
 
                 if not issubclass(type(dct), typ):
