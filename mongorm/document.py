@@ -128,6 +128,12 @@ class Document(BaseDocument):
     def validate(self):
         pass
 
+    def pre_save(self):
+        pass
+
+    def post_save(self):
+        pass
+
     @staticmethod
     def __field_verify(spec, dct):
 
@@ -188,9 +194,11 @@ class Document(BaseDocument):
                 self.__class__.__fields__, self)
 
     def save(self):
+        self.pre_save()
         self.validate_fields()
         self.validate()
         self._id = self.__coll__.save(self)
+        self.post_save()
 
     def delete(self):
         self.__coll__.remove(self._id)
