@@ -172,7 +172,10 @@ class Document(BaseDocument):
                     dct = ObjectId(dct)
 
                 if not issubclass(type(dct), typ):
-                    return typ(dct)
+                    try:
+                        return typ(dct)
+                    except:
+                        raise TypeError
 
             return dct
 
