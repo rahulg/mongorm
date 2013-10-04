@@ -9,7 +9,6 @@ class ValidationError(Exception):
     pass
 
 __all__ = [
-    'VERSION',
     'ValidationError',
     'Database',
     'Field',
