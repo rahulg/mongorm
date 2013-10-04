@@ -142,7 +142,12 @@ class Document(BaseDocument):
             if dct is None:
                 return DotDict()
 
-            for k, v in DotDict(spec).iteritems():
+            try:
+                f = spec.iteritems
+            except AttributeError:
+                f = spec.items
+
+            for k, v in f():
                 dct[k] = Document.__field_verify(
                     v,
                     dct.get(k, DotDict() if type(v) is dict else None),

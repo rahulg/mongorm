@@ -241,7 +241,11 @@ class DocumentTestCase(unittest.TestCase):
             d.validate_fields()
             self.fail()
         except KeyError as e:
-            self.assertEquals(e.message, '.hello.a.b.c')
+            try:
+                msg = e.message
+            except AttributeError:
+                msg = str(*e.args)
+            self.assertEquals(msg, '.hello.a.b.c')
 
     def test_descriptive_errors_list_keyerror(self):
         self.SomeTestClass.__fields__ = {
@@ -258,7 +262,11 @@ class DocumentTestCase(unittest.TestCase):
             d.validate_fields()
             self.fail()
         except KeyError as e:
-            self.assertEquals(e.message, '.hello[1].a')
+            try:
+                msg = e.message
+            except AttributeError:
+                msg = str(*e.args)
+            self.assertEquals(msg, '.hello[1].a')
 
     def test_descriptive_errors_dict_typeerror(self):
         self.SomeTestClass.__fields__ = {
@@ -277,7 +285,11 @@ class DocumentTestCase(unittest.TestCase):
             d.validate_fields()
             self.fail()
         except TypeError as e:
-            self.assertEquals(e.message, '.hello.a.b.c')
+            try:
+                msg = e.message
+            except AttributeError:
+                msg = str(*e.args)
+            self.assertEquals(msg, '.hello.a.b.c')
 
     def test_descriptive_errors_list_typeerror(self):
         self.SomeTestClass.__fields__ = {
@@ -294,7 +306,11 @@ class DocumentTestCase(unittest.TestCase):
             d.validate_fields()
             self.fail()
         except TypeError as e:
-            self.assertEquals(e.message, '.hello[1].a')
+            try:
+                msg = e.message
+            except AttributeError:
+                msg = str(*e.args)
+            self.assertEquals(msg, '.hello[1].a')
 
     def test_dotify(self):
         d = DotDict()
