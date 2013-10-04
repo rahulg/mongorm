@@ -224,3 +224,74 @@ class DocumentTestCase(unittest.TestCase):
         expected_keys = ['_id', 'hello']
 
         self.assertSetEqual(set(d.keys()), set(expected_keys))
+
+    def test_descriptive_errors_dict_keyerror(self):
+        self.SomeTestClass.__fields__ = {
+            'hello': {
+                'a': {
+                    'b': {
+                        'c': Field.required(int)
+                    }
+                }
+            }
+        }
+
+        d = self.SomeTestClass()
+        try:
+            d.validate_fields()
+            self.fail()
+        except KeyError as e:
+            self.assertEquals(e.message, '.hello.a.b.c')
+
+    def test_descriptive_errors_list_keyerror(self):
+        self.SomeTestClass.__fields__ = {
+            'hello': [
+                {
+                    'a': Field.required(int)
+                }
+            ]
+        }
+
+        d = self.SomeTestClass()
+        d.hello = [{'a': 1}, {}]
+        try:
+            d.validate_fields()
+            self.fail()
+        except KeyError as e:
+            self.assertEquals(e.message, '.hello[1].a')
+
+    def test_descriptive_errors_dict_typeerror(self):
+        self.SomeTestClass.__fields__ = {
+            'hello': {
+                'a': {
+                    'b': {
+                        'c': Field.required(int)
+                    }
+                }
+            }
+        }
+
+        d = self.SomeTestClass()
+        d.hello = DotDict(a=DotDict(b=DotDict(c=[])))
+        try:
+            d.validate_fields()
+            self.fail()
+        except TypeError as e:
+            self.assertEquals(e.message, '.hello.a.b.c')
+
+    def test_descriptive_errors_list_typeerror(self):
+        self.SomeTestClass.__fields__ = {
+            'hello': [
+                {
+                    'a': Field.required(int)
+                }
+            ]
+        }
+
+        d = self.SomeTestClass()
+        d.hello = [{'a': 1}, {'a': []}]
+        try:
+            d.validate_fields()
+            self.fail()
+        except TypeError as e:
+            self.assertEquals(e.message, '.hello[1].a')

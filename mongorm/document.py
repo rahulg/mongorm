@@ -135,7 +135,7 @@ class Document(BaseDocument):
         pass
 
     @staticmethod
-    def __field_verify(spec, dct):
+    def __field_verify(spec, dct, _k=''):
 
         if type(spec) is dict:
 
@@ -144,7 +144,10 @@ class Document(BaseDocument):
 
             for k, v in DotDict(spec).iteritems():
                 dct[k] = Document.__field_verify(
-                    v, dct.get(k, DotDict() if type(v) is dict else None))
+                    v,
+                    dct.get(k, DotDict() if type(v) is dict else None),
+                    _k + '.' + k
+                )
                 if dct[k] is None or dct[k] == {}:
                     del dct[k]
 
@@ -158,7 +161,11 @@ class Document(BaseDocument):
             list_spec = spec[0]
 
             for i, v in enumerate(dct):
-                dct[i] = Document.__field_verify(list_spec, v)
+                dct[i] = Document.__field_verify(
+                    list_spec,
+                    v,
+                    _k + '[' + str(i) + ']'
+                )
 
             return dct
 
@@ -168,7 +175,7 @@ class Document(BaseDocument):
 
             if req and dct is None:
                 if default is None:
-                    raise KeyError
+                    raise KeyError(_k)
                 else:
                     dct = default
 
@@ -181,7 +188,7 @@ class Document(BaseDocument):
                     try:
                         return typ(dct)
                     except:
-                        raise TypeError
+                        raise TypeError(_k)
 
             return dct
 
@@ -191,7 +198,9 @@ class Document(BaseDocument):
     def validate_fields(self):
         if '__fields__' in self.__class__.__dict__:
             self.__class__.__field_verify(
-                self.__class__.__fields__, self)
+                self.__class__.__fields__,
+                self
+            )
 
     def save(self):
         self.pre_save()
