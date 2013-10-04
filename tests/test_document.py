@@ -295,3 +295,10 @@ class DocumentTestCase(unittest.TestCase):
             self.fail()
         except TypeError as e:
             self.assertEquals(e.message, '.hello[1].a')
+
+    def test_dotify(self):
+        d = DotDict()
+        d.a = {'b': 2}
+        self.assertEquals(type(d.a), DotDict)
+        d.c = [{'d': 2}]
+        self.assertEquals(type(d.c[0]), DotDict)

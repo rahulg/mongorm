@@ -28,10 +28,42 @@ class DotDict(dict):
             self.__delitem__(name)
 
     def __setattr__(self, name, value):
+
+        if issubclass(type(value), dict) or issubclass(type(value), list):
+            value = DotDict.__dotify(value)
+
         if name[:2] == '__':
             object.__setattr__(self, name, value)
         else:
-            self.__setitem__(name, value)
+            super(DotDict, self).__setitem__(name, value)
+
+    def __setitem__(self, name, value):
+
+        if issubclass(type(value), dict) or issubclass(type(value), list):
+            value = DotDict.__dotify(value)
+
+        super(DotDict, self).__setitem__(name, value)
+
+    @staticmethod
+    def __dotify(dct):
+
+        if issubclass(type(dct), dict):
+
+            for k, v in DotDict(dct).iteritems():
+                dct[k] = DotDict.__dotify(v)
+
+            return DotDict(dct)
+
+        elif issubclass(type(dct), list):
+
+            for i, v in enumerate(dct):
+                dct[i] = DotDict.__dotify(v)
+
+            return dct
+
+        else:
+
+            return dct
 
 
 class JSONEncoder(json.JSONEncoder):
