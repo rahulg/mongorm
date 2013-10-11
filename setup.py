@@ -4,7 +4,7 @@
 import os
 from setuptools import setup
 
-VERSION = (0, 6, 12)
+VERSION = (0, 7, 0)
 
 
 def read(fname):
