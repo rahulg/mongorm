@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from mongorm.database import Database
-from mongorm.document import Field, Index
+from mongorm.document import Field, Index, GeoJSON
 from mongorm.utils import DotDict, JSONEncoder
 
 
@@ -13,6 +13,7 @@ __all__ = [
     'Database',
     'Field',
     'Index',
+    'GeoJSON',
     'DotDict',
     'JSONEncoder'
 ]

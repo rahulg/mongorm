@@ -1,6 +1,6 @@
 import unittest
 
-from mongorm import Database, Field, Index, DotDict
+from mongorm import Database, Field, Index, DotDict, GeoJSON
 import pymongo
 
 
@@ -318,3 +318,41 @@ class DocumentTestCase(unittest.TestCase):
         self.assertEquals(type(d.a), DotDict)
         d.c = [{'d': 2}]
         self.assertEquals(type(d.c[0]), DotDict)
+
+    def test_geo_point(self):
+        self.SomeTestClass.__fields__ = {
+            'hello': Field.geo_point()
+        }
+
+        d = self.SomeTestClass()
+        d.hello = GeoJSON.Point(lng=103.0, lat=1.0)
+        d.validate_fields()
+
+    def test_geo_line_string(self):
+        self.SomeTestClass.__fields__ = {
+            'hello': Field.geo_line_string()
+        }
+
+        d = self.SomeTestClass()
+        d.hello = GeoJSON.LineString(
+            GeoJSON.Position(lng=103.0, lat=1.0),
+            GeoJSON.Position(lng=12.0, lat=70.0)
+        )
+        d.validate_fields()
+
+    def test_geo_polygon(self):
+        self.SomeTestClass.__fields__ = {
+            'hello': Field.geo_polygon()
+        }
+
+        d = self.SomeTestClass()
+        d.hello = GeoJSON.Polygon(
+            [
+                GeoJSON.Position(lng=103.0, lat=1.0),
+                GeoJSON.Position(lng=12.0, lat=70.0)
+            ], [
+                GeoJSON.Position(lng=103.0, lat=1.0),
+                GeoJSON.Position(lng=12.0, lat=70.0)
+            ]
+        )
+        d.validate_fields()

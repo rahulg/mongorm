@@ -18,6 +18,55 @@ class Field(object):
     def optional(typ):
         return (False, typ, None)
 
+    @staticmethod
+    def geo_point():
+        return {
+            'type': Field.required(basestring),
+            'coordinates': [Field.optional(float)]
+        }
+
+    @staticmethod
+    def geo_line_string():
+        return {
+            'type': Field.required(basestring),
+            'coordinates': [[Field.optional(float)]]
+        }
+
+    @staticmethod
+    def geo_polygon():
+        return {
+            'type': Field.required(basestring),
+            'coordinates': [[[Field.optional(float)]]]
+        }
+
+
+class GeoJSON(object):
+
+    @staticmethod
+    def Position(lng, lat):
+        return [float(lng), float(lat)]
+
+    @staticmethod
+    def Point(lng, lat):
+        return {
+            'type': 'Point',
+            'coordinates': GeoJSON.Position(lng, lat)
+        }
+
+    @staticmethod
+    def LineString(*args):
+        return {
+            'type': 'LineString',
+            'coordinates': [pt for pt in args]
+        }
+
+    @staticmethod
+    def Polygon(*args):
+        return {
+            'type': 'Polygon',
+            'coordinates': [linstr for linstr in args]
+        }
+
 
 def Index(*args, **kwargs):
     return args, kwargs
