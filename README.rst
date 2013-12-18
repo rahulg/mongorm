@@ -99,7 +99,7 @@ class.
 
     from mongorm import Field
 
-    class User(db.Model):
+    class User(db.Document):
         # Override the collection name
         # Defaults to the underscored version of the class name
         __collection__ = 'auth_user'
@@ -211,3 +211,4 @@ If you wish to contribute code, please note the following:
    branches that might exist
 -  Make sure you're following conventions
 -  Github pull requests are fine, as are patches emailed to ``r@hul.ag``
+

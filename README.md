@@ -79,7 +79,7 @@ The following demonstrates some of the features of the `Document` class.
 ```
 from mongorm import Field
 
-class User(db.Model):
+class User(db.Document):
 	# Override the collection name
 	# Defaults to the underscored version of the class name
 	__collection__ = 'auth_user'
